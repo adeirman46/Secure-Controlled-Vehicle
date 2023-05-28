@@ -17,8 +17,8 @@ using namespace std;
 
 #define TAGLEN 16
 
-const char *ssid = "KabaRinjani";
-const char *password = "Rinjani1";
+const char *ssid = "Irman";
+const char *password = "kepanjanganhcl";
 const char *mqtt_server = "broker.mqtt-dashboard.com";
 const char *pub_topic = "pub_esp32";
 const char *sub_topic = "sub_esp32";
@@ -145,67 +145,6 @@ void setup_wifi()
   Serial.println(WiFi.localIP());
 }
 
-void callback(char *topic, byte *payload, unsigned int length)
-{
-  // Copy the payload into the subscribedMsg variable
-  strncpy(subscribedMsg, (char *)payload, length);
-  subscribedMsg[length] = '\0'; // Add a null terminator
-
-  // Print the received message
-  Serial.print("Received message: ");
-  Serial.println(subscribedMsg);
-
-  // Encrypt plaintext
-  crypto_aead_encrypt(ciphertext, &ciphertext_len, (const unsigned char *)subscribedMsg, length, NULL, 0, NULL, nonce, key);
-
-  // Print the ciphertext
-  Serial.print("Ciphertext: ");
-  for (unsigned long long i = 0; i < ciphertext_len; i++)
-  {
-    Serial.printf("%02X", ciphertext[i]);
-  }
-  Serial.println("");
-
-  // Decrypt ciphertext
-  crypto_aead_decrypt(decryptedtext, &plaintext_len, NULL, ciphertext, ciphertext_len, NULL, 0, nonce, key);
-
-  // Print the decrypted text
-  Serial.print("Decrypted: ");
-  Serial.println((char *)decryptedtext);
-
-  // Publish the subscribed message, ciphertext, and decrypted text
-  client.publish(pub_topic, subscribedMsg);
-  char *cipher = (char *)malloc(2 * ciphertext_len + 1); // Allocate memory for the cipher array
-  if (cipher != NULL)
-  {
-    int index = 0;
-
-    for (unsigned long long i = 0; i < ciphertext_len; i++)
-    {
-      index += snprintf(&cipher[index], 3, "%02X", ciphertext[i]);
-    }
-
-    // Null-terminate the cipher array
-    cipher[index] = '\0';
-
-    // Publish the ciphertext
-    client.publish(pub_topic, cipher);
-
-    // Free the dynamically allocated memory
-    free(cipher);
-  }
-
-  // Publish the decrypted text
-  client.publish(pub_topic, (const char *)decryptedtext);
-
-  // Clear variables
-  memset(ciphertext, 0, sizeof(ciphertext));
-  memset(subscribedMsg, 0, sizeof(subscribedMsg));
-  memset(decryptedtext, 0, sizeof(decryptedtext));
-  ciphertext_len = 0;
-  plaintext_len = 0;
-}
-
 void reconnect()
 {
   // Loop until we're reconnected
@@ -237,11 +176,11 @@ void reconnect()
 
 void setup()
 {
-  Serial.println(subscribedMsg);
-  Serial.begin(115200);
+  Serial.begin(115200); // Initialize the Serial Monitor
+
+  // Rest of the setup code
   setup_wifi();
   client.setServer(mqtt_server, 1883);
-  client.setCallback(callback);
 }
 
 void loop()
@@ -251,4 +190,39 @@ void loop()
     reconnect();
   }
   client.loop();
+
+  // Check if there is any input from the Serial Monitor
+  if (Serial.available())
+  {
+    // Read the input message from Serial Monitor
+    String message = Serial.readString();
+    Serial.printf("Plaintext: %s", message.c_str());
+    Serial.println("");
+    // Encrypt the message
+    crypto_aead_encrypt(ciphertext, &ciphertext_len, (const unsigned char *)message.c_str(), message.length(), NULL, 0, NULL, nonce, key);
+
+    // Print the ciphertext
+    Serial.print("Ciphertext: ");
+    for (unsigned long long i = 0; i < ciphertext_len; i++)
+    {
+      Serial.printf("%02X", ciphertext[i]);
+    }
+    Serial.println("");
+
+    // Publish the ciphertext
+    // Create a buffer to store the hexadecimal representation of the ciphertext
+    char hexCiphertext[ciphertext_len * 2 + 1];
+
+    // Convert each byte of the ciphertext to a hexadecimal string
+    for (unsigned long long i = 0; i < ciphertext_len; i++)
+    {
+      sprintf(&hexCiphertext[i * 2], "%02X", ciphertext[i]);
+    }
+
+    // Null-terminate the string
+    hexCiphertext[ciphertext_len * 2] = '\0';
+
+    // Publish the ciphertext
+    client.publish(sub_topic, hexCiphertext);
+  }
 }

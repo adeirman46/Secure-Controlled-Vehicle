@@ -106,6 +106,7 @@ int main()
 	}
 	plaintext_len = strlen((char *)plaintext);
 	plaintext_len = plaintext_len > 0 ? plaintext_len - 1 : 0; // Exclude null terminator
+	
 
 	// Encrypt plaintext
 	crypto_aead_encrypt(ciphertext, &ciphertext_len, plaintext, plaintext_len, NULL, 0, NULL, nonce, key);
@@ -117,17 +118,6 @@ int main()
 	}
 	printf("\n");
 
-	// Decrypt ciphertext
 	int ret = crypto_aead_decrypt(decryptedtext, &plaintext_len, NULL, ciphertext, ciphertext_len, NULL, 0, nonce, key);
 
-	if (ret == 0)
-	{
-		printf("Decrypted plaintext: %s\n", decryptedtext);
-	}
-	else
-	{
-		printf("Decryption failed.\n");
-	}
-
-	return 0;
 }
