@@ -259,44 +259,50 @@ void loop()
   client.loop();
 
   if (strcmp(decryptedtext_now, "forward")==0) {
+    Serial.println("Forward direction");
     digitalWrite(motor1Pin1, LOW);
     digitalWrite(motor1Pin2, HIGH);
     digitalWrite(motor2Pin1, LOW);
     digitalWrite(motor2Pin2, HIGH);
   }
   else if (strcmp(decryptedtext_now, "left")==0) {
+    Serial.println("Left direction");
     digitalWrite(motor1Pin1, LOW);
     digitalWrite(motor1Pin2, HIGH);
     digitalWrite(motor2Pin1, LOW);
     digitalWrite(motor2Pin2, LOW);
   }
   else if (strcmp(decryptedtext_now, "stop")==0) {
+    Serial.println("Stop");
     digitalWrite(motor1Pin1, LOW);
     digitalWrite(motor1Pin2, LOW);
     digitalWrite(motor2Pin1, LOW);
     digitalWrite(motor2Pin2, LOW);
   }
   else if (strcmp(decryptedtext_now, "right")==0) {
+    Serial.println("Right direction");
     digitalWrite(motor1Pin1, LOW);
     digitalWrite(motor1Pin2, LOW);
     digitalWrite(motor2Pin1, LOW);
     digitalWrite(motor2Pin2, HIGH);
   }
   else if (strcmp(decryptedtext_now, "reverse")==0) {
+    Serial.println("Reverse direction");
     digitalWrite(motor1Pin1, HIGH);
     digitalWrite(motor1Pin2, LOW);
     digitalWrite(motor2Pin1, HIGH);
     digitalWrite(motor2Pin2, LOW);
   }
   if (strcmp(decryptedtext_now, "0")==0) {
+    Serial.println("Speed = 0");
     ledcWrite(pwmChannel, 0);    
     digitalWrite(motor1Pin1, LOW);
     digitalWrite(motor1Pin2, LOW);
     digitalWrite(motor2Pin1, LOW);
     digitalWrite(motor2Pin2, LOW);
   }
-  else if((int)decryptedtext_now > 0){
-    dutyCycle = map((int)decryptedtext_now, 25, 100, 200, 255);
+  else if(atoi(decryptedtext_now) > 0){
+    dutyCycle = map(atoi(decryptedtext_now), 25, 100, 200, 255);
     ledcWrite(pwmChannel, dutyCycle);
   }
 }

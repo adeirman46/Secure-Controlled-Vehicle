@@ -354,7 +354,6 @@ void loop()
               // Publish the ciphertext
               mqtt_client.publish(sub_topic, hexCiphertext);
             }
-
             // Display the HTML web page
             client.println("<!DOCTYPE HTML><html>");
             client.println("<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
@@ -364,31 +363,63 @@ void loop()
             client.println(".container { display: flex; flex-direction: column; align-items: center; justify-content: center; }");
             client.println(".button { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; background-color: #ad2218;");
             client.println("border: none; color: white; padding: 12px 28px; text-decoration: none; font-size: 26px; margin: 1px; cursor: pointer;}");
-            client.println(".button2 {background-color: #555555;}</style>");
+            client.println(".button2 {background-color: #555555;}");
+            client.println(".small-button { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; background-color: #ad2218;");
+            client.println("border: none; color: white; padding: 8px 16px; text-decoration: none; font-size: 18px; margin: 1px; cursor: pointer;}");
+            client.println("</style>");
             client.println("<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js\"></script></head>");
 
             // Web Page
             client.println("<body>");
             client.println("<div class=\"container\">");
             client.println("<p><button class=\"button\" onclick=\"moveForward()\">FORWARD</button></p>");
-            client.println("<p><button class=\"button\" onclick=\"moveLeft()\">LEFT </button>");
+            client.println("<p><button class=\"button\" onclick=\"moveLeft()\">LEFT</button>");
             client.println("<button class=\"button button2\" onclick=\"stopRobot()\">STOP</button>");
             client.println("<button class=\"button\" onclick=\"moveRight()\">RIGHT</button></p>");
             client.println("<p><button class=\"button\" onclick=\"moveReverse()\">REVERSE</button></p>");
             client.println("<p>Motor Speed: <span id=\"motorSpeed\"></span></p>");
             client.println("<input type=\"range\" min=\"0\" max=\"100\" step=\"25\" id=\"motorSlider\" onchange=\"motorSpeed(this.value)\" value=\"" + valueString + "\"/>");
+            client.println("<p>Password: <input type=\"password\" id=\"password\"></p>");
+            client.println("<p><button class=\"small-button\" onclick=\"checkPassword()\">Submit</button></p>");
             client.println("</div>");
 
             client.println("<script>");
-            client.println("function moveForward() { $.get(\"/forward\"); {Connection: close};}");
-            client.println("function moveLeft() { $.get(\"/left\"); {Connection: close};}");
-            client.println("function stopRobot() {$.get(\"/stop\"); {Connection: close};}");
-            client.println("function moveRight() { $.get(\"/right\"); {Connection: close};}");
-            client.println("function moveReverse() { $.get(\"/reverse\"); {Connection: close};}");
+            client.println("function checkPassword() {");
+            client.println("  var password = document.getElementById(\"password\").value;");
+            client.println("  if (password === \"3.14159265\") {");
+            client.println("    document.getElementById(\"password\").disabled = true;");
+            client.println("    document.getElementById(\"password\").style.backgroundColor = \"#169e18\";");
+            client.println("    enableControls();");
+            client.println("  } else {");
+            client.println("    document.getElementById(\"password\").style.backgroundColor = \"#ad2218\";");
+            client.println("    disableControls();");
+            client.println("  }");
+            client.println("}");
+            client.println("function enableControls() {");
+            client.println("  var buttons = document.getElementsByClassName(\"button\");");
+            client.println("  for (var i = 0; i < buttons.length; i++) {");
+            client.println("    buttons[i].style.backgroundColor = \"#169e18\";");
+            client.println("  }");
+            client.println("  var slider = document.getElementById(\"motorSlider\");");
+            client.println("  slider.disabled = false;");
+            client.println("}");
+            client.println("function disableControls() {");
+            client.println("  var buttons = document.getElementsByClassName(\"button\");");
+            client.println("  for (var i = 0; i < buttons.length; i++) {");
+            client.println("    buttons[i].style.backgroundColor = \"#ad2218\";");
+            client.println("  }");
+            client.println("  var slider = document.getElementById(\"motorSlider\");");
+            client.println("  slider.disabled = true;");
+            client.println("}");
+            client.println("function moveForward() { if (!document.getElementById(\"password\").disabled) return; $.get(\"/forward\"); {Connection: close};}");
+            client.println("function moveLeft() { if (!document.getElementById(\"password\").disabled) return; $.get(\"/left\"); {Connection: close};}");
+            client.println("function stopRobot() { if (!document.getElementById(\"password\").disabled) return; $.get(\"/stop\"); {Connection: close};}");
+            client.println("function moveRight() { if (!document.getElementById(\"password\").disabled) return; $.get(\"/right\"); {Connection: close};}");
+            client.println("function moveReverse() { if (!document.getElementById(\"password\").disabled) return; $.get(\"/reverse\"); {Connection: close};}");
             client.println("var slider = document.getElementById(\"motorSlider\");");
             client.println("var motorP = document.getElementById(\"motorSpeed\"); motorP.innerHTML = slider.value;");
             client.println("slider.oninput = function() { slider.value = this.value; motorP.innerHTML = this.value; }");
-            client.println("function motorSpeed(pos) { $.get(\"/?value=\" + pos + \"&\"); {Connection: close};}</script>");
+            client.println("function motorSpeed(pos) { if (!document.getElementById(\"password\").disabled) return; $.get(\"/?value=\" + pos + \"&\"); {Connection: close};}</script>");
 
             client.println("</body></html>");
 
