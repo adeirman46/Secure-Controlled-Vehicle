@@ -46,8 +46,23 @@ int value = 0;
 #if !defined(CRYPTO_NPUBBYTES)
 #define CRYPTO_NPUBBYTES 16
 #endif
-
 #define TAGLEN 16
+
+// Motor 1
+int motor1Pin1 = 12;
+int motor1Pin2 = 14;
+int enable1Pin = 13;
+
+// Motor 2
+int motor2Pin1 = 27;
+int motor2Pin2 = 26;
+int enable2Pin = 25;
+
+// Setting PWM properties
+const int freq = 30000;
+const int pwmChannel = 0;
+const int resolution = 8;
+int dutyCycle = 0;
 
 int crypto_aead_decrypt(
     unsigned char *m, unsigned long long *mlen,
@@ -146,6 +161,8 @@ void setup_wifi()
 char *subscribedMsg;
 unsigned int subscribedMsgLength = 0;
 
+char* decryptedtext_now = new char[strlen((char*)decryptedtext) + 1];
+
 void callback(char *topic, byte *payload, unsigned int length) {
 
   if (subscribedMsg != NULL) {
@@ -172,6 +189,7 @@ void callback(char *topic, byte *payload, unsigned int length) {
   // Print the decrypted text
   Serial.printf("Decrypted: %s\n", (unsigned char*) decryptedtext);
 
+  strcpy(decryptedtext_now, (char*)decryptedtext);
   // Clear variables
   memset(subscribedMsg, 0, sizeof(subscribedMsg));
   memset(decryptedtext, 0, sizeof(decryptedtext));
@@ -209,6 +227,22 @@ void reconnect()
 
 void setup()
 {
+  // Set the Motor pins as outputs
+  pinMode(motor1Pin1, OUTPUT);
+  pinMode(motor1Pin2, OUTPUT);
+  pinMode(motor2Pin1, OUTPUT);
+  pinMode(motor2Pin2, OUTPUT);
+
+  // Configure PWM channel functionalities
+  ledcSetup(pwmChannel, freq, resolution);
+
+  // Attach the PWM channel 0 to the enable pins which are the GPIOs to be controlled
+  ledcAttachPin(enable1Pin, pwmChannel);
+  ledcAttachPin(enable2Pin, pwmChannel);
+
+  // Produce a PWM signal to both enable pins with a duty cycle 0
+  ledcWrite(pwmChannel, dutyCycle);
+
   Serial.println(subscribedMsg);
   Serial.begin(115200);
   setup_wifi();
@@ -223,4 +257,46 @@ void loop()
     reconnect();
   }
   client.loop();
+
+  if (strcmp(decryptedtext_now, "forward")==0) {
+    digitalWrite(motor1Pin1, LOW);
+    digitalWrite(motor1Pin2, HIGH);
+    digitalWrite(motor2Pin1, LOW);
+    digitalWrite(motor2Pin2, HIGH);
+  }
+  else if (strcmp(decryptedtext_now, "left")==0) {
+    digitalWrite(motor1Pin1, LOW);
+    digitalWrite(motor1Pin2, HIGH);
+    digitalWrite(motor2Pin1, LOW);
+    digitalWrite(motor2Pin2, LOW);
+  }
+  else if (strcmp(decryptedtext_now, "stop")==0) {
+    digitalWrite(motor1Pin1, LOW);
+    digitalWrite(motor1Pin2, LOW);
+    digitalWrite(motor2Pin1, LOW);
+    digitalWrite(motor2Pin2, LOW);
+  }
+  else if (strcmp(decryptedtext_now, "right")==0) {
+    digitalWrite(motor1Pin1, LOW);
+    digitalWrite(motor1Pin2, LOW);
+    digitalWrite(motor2Pin1, LOW);
+    digitalWrite(motor2Pin2, HIGH);
+  }
+  else if (strcmp(decryptedtext_now, "reverse")==0) {
+    digitalWrite(motor1Pin1, HIGH);
+    digitalWrite(motor1Pin2, LOW);
+    digitalWrite(motor2Pin1, HIGH);
+    digitalWrite(motor2Pin2, LOW);
+  }
+  if (strcmp(decryptedtext_now, "0")==0) {
+    ledcWrite(pwmChannel, 0);    
+    digitalWrite(motor1Pin1, LOW);
+    digitalWrite(motor1Pin2, LOW);
+    digitalWrite(motor2Pin1, LOW);
+    digitalWrite(motor2Pin2, LOW);
+  }
+  else if((int)decryptedtext_now > 0){
+    dutyCycle = map((int)decryptedtext_now, 25, 100, 200, 255);
+    ledcWrite(pwmChannel, dutyCycle);
+  }
 }

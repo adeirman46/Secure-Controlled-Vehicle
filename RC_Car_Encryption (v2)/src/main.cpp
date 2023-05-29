@@ -43,20 +43,20 @@ WiFiServer server(80);
 // Variable to store the HTTP request
 String header;
 
-// Motor 1
-int motor1Pin1 = 12;
-int motor1Pin2 = 14;
-int enable1Pin = 13;
+// // Motor 1
+// int motor1Pin1 = 12;
+// int motor1Pin2 = 14;
+// int enable1Pin = 13;
 
-// Motor 2
-int motor2Pin1 = 27;
-int motor2Pin2 = 26;
-int enable2Pin = 25;
+// // Motor 2
+// int motor2Pin1 = 27;
+// int motor2Pin2 = 26;
+// int enable2Pin = 25;
 
-// Setting PWM properties
-const int freq = 60000;
-const int pwmChannel = 0;
-const int resolution = 8;
+// // Setting PWM properties
+// const int freq = 60000;
+// const int pwmChannel = 0;
+// const int resolution = 8;
 int dutyCycle = 0;
 
 // Decode HTTP GET value
@@ -177,10 +177,10 @@ void loop()
             {
               String message = "forward";
               Serial.println(message);
-              digitalWrite(motor1Pin1, LOW);
-              digitalWrite(motor1Pin2, HIGH);
-              digitalWrite(motor2Pin1, LOW);
-              digitalWrite(motor2Pin2, HIGH);
+              // digitalWrite(motor1Pin1, LOW);
+              // digitalWrite(motor1Pin2, HIGH);
+              // digitalWrite(motor2Pin1, LOW);
+              // digitalWrite(motor2Pin2, HIGH);
 
               // Encrypt the message
               crypto_aead_encrypt(ciphertext, &ciphertext_len, (const unsigned char *)message.c_str(), message.length(), NULL, 0, NULL, nonce, key);
@@ -214,10 +214,10 @@ void loop()
             {
               String message = "left";
               Serial.println(message);
-              digitalWrite(motor1Pin1, LOW);
-              digitalWrite(motor1Pin2, HIGH);
-              digitalWrite(motor2Pin1, LOW);
-              digitalWrite(motor2Pin2, LOW);
+              // digitalWrite(motor1Pin1, LOW);
+              // digitalWrite(motor1Pin2, HIGH);
+              // digitalWrite(motor2Pin1, LOW);
+              // digitalWrite(motor2Pin2, LOW);
               // Encrypt the message
               crypto_aead_encrypt(ciphertext, &ciphertext_len, (const unsigned char *)message.c_str(), message.length(), NULL, 0, NULL, nonce, key);
 
@@ -250,10 +250,10 @@ void loop()
             {
               String message = "stop";
               Serial.println(message);
-              digitalWrite(motor1Pin1, LOW);
-              digitalWrite(motor1Pin2, LOW);
-              digitalWrite(motor2Pin1, LOW);
-              digitalWrite(motor2Pin2, LOW);
+              // digitalWrite(motor1Pin1, LOW);
+              // digitalWrite(motor1Pin2, LOW);
+              // digitalWrite(motor2Pin1, LOW);
+              // digitalWrite(motor2Pin2, LOW);
 
               // Encrypt the message
               crypto_aead_encrypt(ciphertext, &ciphertext_len, (const unsigned char *)message.c_str(), message.length(), NULL, 0, NULL, nonce, key);
@@ -286,10 +286,10 @@ void loop()
             {
               String message = "right";
               Serial.println(message);
-              digitalWrite(motor1Pin1, LOW);
-              digitalWrite(motor1Pin2, LOW);
-              digitalWrite(motor2Pin1, LOW);
-              digitalWrite(motor2Pin2, HIGH);
+              // digitalWrite(motor1Pin1, LOW);
+              // digitalWrite(motor1Pin2, LOW);
+              // digitalWrite(motor2Pin1, LOW);
+              // digitalWrite(motor2Pin2, HIGH);
 
               // Encrypt the message
               crypto_aead_encrypt(ciphertext, &ciphertext_len, (const unsigned char *)message.c_str(), message.length(), NULL, 0, NULL, nonce, key);
@@ -322,10 +322,10 @@ void loop()
             {
               String message = "reverse";
               Serial.println(message);
-              digitalWrite(motor1Pin1, HIGH);
-              digitalWrite(motor1Pin2, LOW);
-              digitalWrite(motor2Pin1, HIGH);
-              digitalWrite(motor2Pin2, LOW);
+              // digitalWrite(motor1Pin1, HIGH);
+              // digitalWrite(motor1Pin2, LOW);
+              // digitalWrite(motor2Pin1, HIGH);
+              // digitalWrite(motor2Pin2, LOW);
 
               // Encrypt the message
               crypto_aead_encrypt(ciphertext, &ciphertext_len, (const unsigned char *)message.c_str(), message.length(), NULL, 0, NULL, nonce, key);
@@ -401,11 +401,11 @@ void loop()
               // Set motor speed value
               if (valueString == "0")
               {
-                ledcWrite(pwmChannel, 0);
-                digitalWrite(motor1Pin1, LOW);
-                digitalWrite(motor1Pin2, LOW);
-                digitalWrite(motor2Pin1, LOW);
-                digitalWrite(motor2Pin2, LOW);
+                // ledcWrite(pwmChannel, 0);
+                // digitalWrite(motor1Pin1, LOW);
+                // digitalWrite(motor1Pin2, LOW);
+                // digitalWrite(motor2Pin1, LOW);
+                // digitalWrite(motor2Pin2, LOW);
                 String message = "0";
                 Serial.println(message);
                 // Encrypt the message
@@ -438,7 +438,7 @@ void loop()
               else
               {
                 dutyCycle = map(valueString.toInt(), 25, 100, 200, 255);
-                ledcWrite(pwmChannel, dutyCycle);
+                // ledcWrite(pwmChannel, dutyCycle);
                 String message = valueString;
                 Serial.println(message);
 
@@ -496,21 +496,21 @@ void setup()
 {
   Serial.begin(115200);
 
-  // Set the Motor pins as outputs
-  pinMode(motor1Pin1, OUTPUT);
-  pinMode(motor1Pin2, OUTPUT);
-  pinMode(motor2Pin1, OUTPUT);
-  pinMode(motor2Pin2, OUTPUT);
+  // // Set the Motor pins as outputs
+  // pinMode(motor1Pin1, OUTPUT);
+  // pinMode(motor1Pin2, OUTPUT);
+  // pinMode(motor2Pin1, OUTPUT);
+  // pinMode(motor2Pin2, OUTPUT);
 
-  // Configure PWM channel functionalities
-  ledcSetup(pwmChannel, freq, resolution);
+  // // Configure PWM channel functionalities
+  // ledcSetup(pwmChannel, freq, resolution);
 
-  // Attach the PWM channel 0 to the enable pins which are the GPIOs to be controlled
-  ledcAttachPin(enable1Pin, pwmChannel);
-  ledcAttachPin(enable2Pin, pwmChannel);
+  // // Attach the PWM channel 0 to the enable pins which are the GPIOs to be controlled
+  // ledcAttachPin(enable1Pin, pwmChannel);
+  // ledcAttachPin(enable2Pin, pwmChannel);
 
-  // Produce a PWM signal to both enable pins with a duty cycle 0
-  ledcWrite(pwmChannel, dutyCycle);
+  // // Produce a PWM signal to both enable pins with a duty cycle 0
+  // ledcWrite(pwmChannel, dutyCycle);
 
   // Connect to Wi-Fi network with SSID and password
   Serial.print("Connecting to ");
